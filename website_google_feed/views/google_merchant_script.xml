@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="google_merchant_survey_scripts" inherit_id="website_sale.payment">
+            <xpath expr="//div[@id='wrap']" position="after">
+                <!-- BEGIN GCR Opt-in Module Code -->
+                <t t-set="info_survey" t-value="order._google_merchant_survey()"/>
+                <script async="async" defer="defer" src="https://apis.google.com/js/platform.js?onload=renderOptIn"> </script>
+                <script>
+                    window.renderOptIn = function() {
+                        window.gapi.load('surveyoptin', function() {
+                            window.gapi.surveyoptin.render( {
+                               "merchant_id": "<t t-esc="info_survey.get('merchant_id')"/>",
+                                "order_id": "<t t-esc="info_survey.get('order_id')"/>",
+                                "email": "<t t-esc="info_survey.get('email')"/>" ,
+                                "delivery_country": "<t t-esc="info_survey.get('delivery_country')"/>",
+                                "estimated_delivery_date": "<t t-esc="info_survey.get('estimated_delivery_date')" />",
+                                "products": <t t-esc="info_survey.get('products')" />,
+                                "opt_in_style": "BOTTOM_LEFT_DIALOG"
+                            });
+                        });
+                    }
+                </script>
+                <!-- END GCR Opt-in Module Code -->
+
+                <!-- BEGIN GCR Language Code -->
+                <script>
+                    window.___gcfg = {
+                        lang: 'fr'
+                    };
+                </script>
+                <!-- END GCR Language Code -->
+            </xpath>
+        </template>
+    </data>
+</odoo>

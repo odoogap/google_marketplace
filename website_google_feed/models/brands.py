@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+from odoo import models, fields, api
+
+
+class MerchantCetnerBrand(models.Model):
+    _name = 'merchant.center.brand'
+    _inherit = ['website.published.multi.mixin']
+    _description = "GMC Brand"
+
+    name = fields.Char(size=256, string='Brand Name', required=True)
+    product_count = fields.Integer('# Products', compute='_compute_product_count',
+                                   help="The number of products under this Brand")
+    image = fields.Binary()
+    description = fields.Text(string="Description")
+
+    old_id = fields.Integer(help="id from odoo 13")
+
+    def _compute_product_count(self):
+        read_group_res = self.env['product.product'].read_group([('google_product_brand_id', 'in', self.ids)],
+                                                                ['google_product_brand_id'],
+                                                                ['google_product_brand_id'])
+        group_data = dict(
+            (data['google_product_brand_id'][0], data['google_product_brand_id_count']) for data in read_group_res)
+        for brand in self:
+            brand.product_count = group_data.get(brand.id, 0)
+
+    def _compute_website_url(self):
+        for brand in self:
+            brand.website_url = "/shop?brand=%s-%s" % (brand.name, brand.id)
