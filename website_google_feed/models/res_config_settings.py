@@ -6,7 +6,7 @@ from odoo import api, models, fields, _
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    google_merchant_center_file_timeout = fields.Integer(string="GMC File timeout (Hours)", related='website_id.google_feed_expire_time', readonly=False)
+    google_merchant_center_file_timeout = fields.Integer(string="GMC File timeout", related='website_id.google_feed_expire_time', readonly=False)
 
     @api.model
     def get_values(self):

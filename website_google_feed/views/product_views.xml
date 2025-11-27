@@ -3,11 +3,32 @@
     <record id="gmc_product_search_form_view_stock" model="ir.ui.view">
         <field name="name">gmc.product.search.form.view.stock</field>
         <field name="model">product.product</field>
-        <field name="inherit_id" ref="stock.stock_product_search_form_view"/>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='filter_to_purchase']" position="after">
                 <filter string="Sync with Google Merchant Center" name="filter_sync_with_mc"
                         domain="[('sync_with_mc', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_product_view_form_inherit_sale_gmc" model="ir.ui.view">
+        <field name="name">product.template.gmc</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='options']" position="inside">
+                <span class="d-inline-block">
+                    <field name="sync_with_mc"/>
+                    <label for="sync_with_mc"/>
+                </span>
+            </xpath>
+            <xpath expr="//group[@name='group_standard_price']" position="after">
+                <group string="Google Merchant Center" name="shop" attrs="{'invisible':['|',('sync_with_mc', '=', False),('product_variant_count', '>', 1)]}">
+                    <field name="google_mpn"/>
+                    <field name="google_product_brand_id"/>
+                    <field name="google_adult"/>
+                </group>
             </xpath>
         </field>
     </record>
@@ -18,23 +39,18 @@
         <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='options']" position="inside">
-                <field name="website_published" invisible="1"/>
-                <span class="d-inline-block"  attrs="{'invisible':['|',('sale_ok','=',False),('website_published','=',False)]}">
+                <span class="d-inline-block">
                     <field name="sync_with_mc"/>
                     <label for="sync_with_mc"/>
                 </span>
             </xpath>
 
-            <xpath expr="//notebook" position="inside">
-                <page string="Google MC" name="google_merchant_center" attrs="{'invisible':[('sync_with_mc', '=', False)]}">
-                    <group>
-                        <field name="google_tax_rate"/>
-                        <field name="google_merchant_price"/>
-                        <field name="google_mpn"/>
-                        <field name="google_product_brand_id"/>
-                        <field name="age_restricted"/>
-                    </group>
-                </page>
+            <xpath expr="//group[@name='group_standard_price']" position="after">
+                <group string="Google Merchant Center" name="shop" attrs="{'invisible':[('sync_with_mc', '=', False)]}">
+                    <field name="google_mpn"/>
+                    <field name="google_product_brand_id"/>
+                    <field name="google_adult"/>
+                </group>
             </xpath>
 
         </field>

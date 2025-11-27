@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 ODOOGAP/PROMPTEQUATION LDA
+# Copyright 2022 ERPGAP/PROMPTEQUATION LDA
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 {
     'name': 'Website Google Feed',
     'category': 'Website',
     'version': '16.0.1.0.0',
-    'summary': 'Generates a XML feed to be fetch by GMC',
-    'author': "ERPGap",
+    'summary': 'Website Google Feed',
+    'author': "ERPGAP",
     'website': "https://www.erpgap.com/",
-    'maintainer': 'ERPGap',
+    'maintainer': 'ERPGAP',
     'license': 'LGPL-3',
     'depends': [
-        'website_sale', 'stock', 'sale_management'
+        'website_sale'
     ],
     'data': [
         'security/ir.model.access.csv',

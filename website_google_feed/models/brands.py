@@ -13,8 +13,6 @@ class MerchantCetnerBrand(models.Model):
     image = fields.Binary()
     description = fields.Text(string="Description")
 
-    old_id = fields.Integer(help="id from odoo 13")
-
     def _compute_product_count(self):
         read_group_res = self.env['product.product'].read_group([('google_product_brand_id', 'in', self.ids)],
                                                                 ['google_product_brand_id'],

@@ -72,7 +72,7 @@
     </record>
 
     <record id="product_merchant_brand_action_form" model="ir.actions.act_window">
-        <field name="name">Brands</field>
+        <field name="name">Google Brands</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">merchant.center.brand</field>
         <field name="view_mode">tree,form</field>
@@ -84,6 +84,6 @@
     </record>
 
     <menuitem action="product_merchant_brand_action_form" id="menu_action_product_brand"
-              parent="stock.menu_product_in_config_stock" sequence="5"/>
+              parent="sale.product_menu_catalog" sequence="5"/>
 
 </odoo>
