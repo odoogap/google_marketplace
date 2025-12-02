@@ -5,10 +5,11 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     def _google_merchant_survey(self):
-        prod_list = []
-        for line in self.order_line:
-            if not line.is_delivery:
-                prod_list.append({"gtin": "%s" % line.product_id.id})
+        prod_list = [
+            {"gtin": line.product_id.barcode or str(line.product_id.id)}
+            for line in self.order_line
+            if not getattr(line, 'is_delivery', False)
+        ]
 
         merchant_id = self.env['ir.config_parameter'].sudo().get_param('website.google_merchant_id', '102186315')
 

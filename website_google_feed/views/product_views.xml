@@ -3,7 +3,7 @@
     <record id="gmc_product_search_form_view_stock" model="ir.ui.view">
         <field name="name">gmc.product.search.form.view.stock</field>
         <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="inherit_id" ref="product.product_search_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='filter_to_purchase']" position="after">
                 <filter string="Sync with Google Merchant Center" name="filter_sync_with_mc"
