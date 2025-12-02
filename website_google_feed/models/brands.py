@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+
+from odoo import models, fields
 
 
 class MerchantCetnerBrand(models.Model):
@@ -13,14 +14,11 @@ class MerchantCetnerBrand(models.Model):
     image = fields.Binary()
     description = fields.Text(string="Description")
 
-    old_id = fields.Integer(help="id from odoo 13")
-
     def _compute_product_count(self):
-        read_group_res = self.env['product.product'].read_group([('google_product_brand_id', 'in', self.ids)],
-                                                                ['google_product_brand_id'],
-                                                                ['google_product_brand_id'])
+        read_group_res = self.env['product.product']._read_group(domain=[(
+            'google_product_brand_id', 'in', self.ids)], groupby=['google_product_brand_id'], aggregates=['__count'])
         group_data = dict(
-            (data['google_product_brand_id'][0], data['google_product_brand_id_count']) for data in read_group_res)
+            (data[0].id, data[1]) for data in read_group_res)
         for brand in self:
             brand.product_count = group_data.get(brand.id, 0)
 

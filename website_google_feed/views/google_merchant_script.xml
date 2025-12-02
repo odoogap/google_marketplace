@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="google_merchant_survey_scripts" inherit_id="website_sale.payment">
+
+        <template id="google_merchant_survey_scripts" inherit_id="website_sale.checkout_layout">
             <xpath expr="//div[@id='wrap']" position="after">
                 <!-- BEGIN GCR Opt-in Module Code -->
-                <t t-set="info_survey" t-value="order._google_merchant_survey()"/>
+                <t t-set="info_survey" t-value="website_sale_order._google_merchant_survey()"/>
                 <script async="async" defer="defer" src="https://apis.google.com/js/platform.js?onload=renderOptIn"> </script>
                 <script>
                     window.renderOptIn = function() {
@@ -33,4 +34,5 @@
             </xpath>
         </template>
     </data>
+
 </odoo>

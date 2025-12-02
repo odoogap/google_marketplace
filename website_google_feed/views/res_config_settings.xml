@@ -4,39 +4,30 @@
     <record id="gmc_res_config_settings_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit.gmc</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="website_sale.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="website_sale.res_config_settings_view_form" />
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='hide_add_to_cart_setting']" position="after">
-                <div class="col-12 col-lg-6 o_setting_box" id="product_availability_setting">
-                    <div class="o_setting_left_pane">
-                    </div>
-                    <div class="o_setting_right_pane" name="gmc_file_manager">
-                        <div class="o_form_label">
-                            GMC File
+            <xpath expr="//setting[@id='hide_add_to_cart_setting']" position="after">
+                <setting string="GMC File" id="gmc_file_setting"
+                    help="Settings to control the Google Merchant Center File Timeouts and Force Update">
+                    <div class="content-group">
+                        <div class="row mt16">
+                            <label
+                                string="Timeout in days"
+                                for="google_merchant_center_file_timeout"
+                                class="o_light_label col-lg-3"
+                            />
+                            <field name="google_merchant_center_file_timeout" />
                         </div>
-                        <div class="text-muted">
-                            Settings to control the Google Merchant Center File Timeouts and Force Update
-                        </div>
-                        <div class="content-group">
-                            <div class="row mt16" id="gmc_file_timeout">
-
-                                <label for="google_merchant_center_file_timeout" string="Timeout in days"
-                                       class="col-lg-3 o_light_label"/>
-                                <field name="google_merchant_center_file_timeout"/>
-                            </div>
-                            <div class="content-group">
-                                <div class="row mt16"
-                                     id="allow_out_of_stock_order_setting"
-                                     title="Default availability mode set on newly created storable products. This can be changed at the product level.">
-                                    <div class="mt16">
-                                        <button type="object" name="update_website_file"
-                                                string="Update File" class="btn-link" icon="fa-refresh"/>
-                                    </div>
-                                </div>
+                        <div class="row mt16"
+                            id="allow_out_of_stock_order_setting"
+                            title="Default availability mode set on newly created storable products. This can be changed at the product level.">
+                            <div class="mt16">
+                                <button type="object" name="update_website_file"
+                                    string="Update File" class="btn-link" icon="fa-refresh" />
                             </div>
                         </div>
                     </div>
-                </div>
+                </setting>
             </xpath>
         </field>
     </record>
