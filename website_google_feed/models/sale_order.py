@@ -18,6 +18,6 @@ class SaleOrder(models.Model):
             "order_id": self.id,
             "email": self.partner_id.email,
             "delivery_country": self.partner_shipping_id.country_id.code,
-            "estimated_delivery_date": self.expected_date.strftime('%Y-%m-%d'),
+            "estimated_delivery_date": self.expected_date and self.expected_date.strftime('%Y-%m-%d') or False,
             "products": prod_list
         }
