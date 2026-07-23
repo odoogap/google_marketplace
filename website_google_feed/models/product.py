@@ -92,7 +92,7 @@ class ProductTemplate(models.Model):
         string="Sync with Google MC",
         compute="_compute_sync_with_mc",
         inverse="_set_sync_with_mc",
-        store=False,
+        store=True,
     )
     google_product_brand_id = fields.Many2one(
         "merchant.center.brand",
@@ -115,7 +115,7 @@ class ProductTemplate(models.Model):
         store=True,
     )
 
-    @api.depends("product_variant_ids", "product_variant_ids.sync_with_mc")
+    @api.depends("product_variant_ids.sync_with_mc")
     def _compute_sync_with_mc(self):
         unique_variants = self.filtered(lambda template: len(template.product_variant_ids) == 1)
         for template in unique_variants:
@@ -128,7 +128,7 @@ class ProductTemplate(models.Model):
             if len(template.product_variant_ids) == 1:
                 template.product_variant_ids.sync_with_mc = template.sync_with_mc
 
-    @api.depends("product_variant_ids", "product_variant_ids.google_product_brand_id")
+    @api.depends("product_variant_ids.google_product_brand_id")
     def _compute_google_product_brand_id(self):
         unique_variants = self.filtered(lambda template: len(template.product_variant_ids) == 1)
         for template in unique_variants:
@@ -141,7 +141,7 @@ class ProductTemplate(models.Model):
             if len(template.product_variant_ids) == 1:
                 template.product_variant_ids.google_product_brand_id = template.google_product_brand_id
 
-    @api.depends("product_variant_ids", "product_variant_ids.google_mpn")
+    @api.depends("product_variant_ids.google_mpn")
     def _compute_google_mpn(self):
         unique_variants = self.filtered(lambda template: len(template.product_variant_ids) == 1)
         for template in unique_variants:
@@ -154,7 +154,7 @@ class ProductTemplate(models.Model):
             if len(template.product_variant_ids) == 1:
                 template.product_variant_ids.google_mpn = template.google_mpn
 
-    @api.depends("product_variant_ids", "product_variant_ids.google_adult")
+    @api.depends("product_variant_ids.google_adult")
     def _compute_google_adult(self):
         unique_variants = self.filtered(lambda template: len(template.product_variant_ids) == 1)
         for template in unique_variants:
