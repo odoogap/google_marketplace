@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from odoo import models, fields
 
 
@@ -11,6 +9,7 @@ class ResConfigSettings(models.TransientModel):
 
     def update_website_file(self):
         for record in self:
-            dom = [('url', '=', '/google-feed-%d.xml' %
-                    record.website_id.id), ('type', '=', 'binary')]
-            self.env['ir.attachment'].sudo().search(dom).unlink()
+            self.env['ir.attachment'].sudo().search([
+                ('type', '=', 'binary'),
+                ('url', '=like', '/google-feed/%%/%d.xml' % record.website_id.id),
+            ]).unlink()

@@ -1,30 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
-    <template id="feed_xml">&lt;?xml version="1.0"?&gt;
-        <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+    <!--
+        Google Merchant Center RSS 2.0 feed.
+        Spec: https://support.google.com/merchants/answer/7052112 (attributes)
+              https://support.google.com/merchants/answer/160589 (RSS format)
+        Empty optional attributes are omitted, as Google requires.
+    -->
+    <template id="feed_xml"><t t-translation="off">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</t>
+        <rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
             <channel>
-                <title><t t-esc="website.name"/> Product Feed</title>
-                <bink><t t-esc="website.domain"/></bink>
-                <description><t t-esc="website.name"/></description>
-                <t t-foreach="feed_info_array" t-as="product_info">
-                    <t t-if="website and website.domain">
-                        <item>
-                            <g:title><t t-esc="product_info['title']"/></g:title>
-                            <g:bink><t t-esc="product_info['link']"/></g:bink>
-                            <g:description><t t-esc="product_info['description']"/></g:description>
-                            <g:image_link><t t-esc="product_info['image_link']"/></g:image_link>
-                            <g:price><t t-esc="product_info['price']"/></g:price>
-                            <g:product_type><t t-esc="product_info['product_type']"/></g:product_type>
-                            <g:condition><t t-esc="product_info['condition']"/></g:condition>
-                            <g:id><t t-esc="product_info['id']"/></g:id>
-                            <g:availability><t t-esc="product_info['availability']"/></g:availability>
-                            <g:brand><t t-esc="product_info['brand']"/></g:brand>
-                            <g:mpn><t t-esc="product_info['mpn']"/></g:mpn>
-                            <g:gtin><t t-esc="product_info['gtin']"/></g:gtin>
-                            <g:adult><t t-esc="product_info['adult']"/></g:adult>
-                        </item>
-                    </t>
+                <title><t t-out="website.name"/> Product Feed</title>
+                <!-- QWeb renders <link> as an HTML void element, so it is written as text (same as website_sale.gmc_xml) -->
+                <t t-translation="off">&lt;link&gt;<t t-out="website.get_base_url()"/>&lt;/link&gt;</t>
+                <description t-out="website.name"/>
+                <t t-foreach="feed_info_array" t-as="item">
+                    <item>
+                        <!-- Required -->
+                        <g:id t-out="item['id']"/>
+                        <g:title t-out="item['title']"/>
+                        <g:description t-out="item['description']"/>
+                        <g:link t-out="item['link']"/>
+                        <g:image_link t-if="item['image_link']" t-out="item['image_link']"/>
+                        <g:availability t-out="item['availability']"/>
+                        <g:price t-out="item['price']"/>
+                        <g:condition t-out="item['condition']"/>
+                        <!-- Identifiers -->
+                        <g:brand t-if="item['brand']" t-out="item['brand']"/>
+                        <g:gtin t-if="item['gtin']" t-out="item['gtin']"/>
+                        <g:mpn t-if="item['mpn']" t-out="item['mpn']"/>
+                        <g:identifier_exists t-out="item['identifier_exists']"/>
+                        <!-- Optional -->
+                        <g:adult t-out="item['adult']"/>
+                        <t t-foreach="item['additional_image_link']" t-as="image_url">
+                            <g:additional_image_link t-out="image_url"/>
+                        </t>
+                        <t t-foreach="item['product_type']" t-as="product_type">
+                            <g:product_type t-out="product_type"/>
+                        </t>
+                        <g:item_group_id t-if="'item_group_id' in item" t-out="item['item_group_id']"/>
+                    </item>
                 </t>
             </channel>
         </rss>

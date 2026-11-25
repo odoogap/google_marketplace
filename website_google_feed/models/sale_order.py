@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from odoo import models
 
 
@@ -12,7 +10,7 @@ class SaleOrder(models.Model):
             for line in self.order_line
             if not getattr(line, 'is_delivery', False)
         ]
-        merchant_id = self.env['ir.config_parameter'].sudo().get_param('website.google_merchant_id', '102186315')
+        merchant_id = self.env['ir.config_parameter'].sudo().get_str('website.google_merchant_id', '102186315')
         return {
             "merchant_id": merchant_id,
             "order_id": self.id,

@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from odoo import models, fields, api
+from odoo import api, fields, models
 from odoo.http import request
+from odoo.tools import urls
 
 
 class ProductProduct(models.Model):
@@ -35,10 +34,22 @@ class ProductProduct(models.Model):
         )
 
     def get_google_feed_xml(self, website, currency_code):
-        domain = (website.domain or "").rstrip("/")
-        feed_info_array = []
+        """Prepare the Google Merchant Center items of the feed.
 
-        # Find pricelist for this website + currency
+        Follows Google's product data specification
+        (https://support.google.com/merchants/answer/7052112) and the conventions of
+        Odoo's own feed (``website_sale.product_feed``).
+
+        :return: one dict per product; empty optional attributes are omitted
+        :rtype: list[dict]
+        """
+        lang = website.default_lang_id.code or self.env.lang
+        products = self.with_context(lang=lang, display_default_code=False)
+        base_url = website.get_base_url()
+        IrHttp = self.env["ir.http"]
+
+        # Pricelist of this website in the requested currency. Without it, fall back
+        # to the sales price, which is expressed in the company currency.
         pricelist = self.env["product.pricelist"].search(
             [
                 ("website_id", "=", website.id),
@@ -47,43 +58,69 @@ class ProductProduct(models.Model):
             limit=1,
         )
 
-        slug = request.env["ir.http"]._slug
-        currency_name = (
-            pricelist.currency_id.display_name if pricelist else currency_code.upper()
-        )
+        def absolute_url(path, localized=True):
+            # Language prefix (e.g. /fr/shop/...) needs the request's routing context.
+            if localized and request:
+                path = IrHttp._url_lang(path, lang_code=lang)
+            return urls.urljoin(base_url, path)
 
-        for product in self:
-            tmpl = product.product_tmpl_id
+        feed_items = []
+        for product in products:
+            if not product._is_variant_possible():
+                continue
 
-            price_unit = (
-                pricelist
-                and self._get_price_from_pricelist(product, pricelist)
-                or product.lst_price
-            )
+            currency = pricelist.currency_id or product.currency_id
+            price = (
+                pricelist and self._get_price_from_pricelist(product, pricelist)
+            ) or product.lst_price
+            # Google rejects items with a zero price.
+            if currency.compare_amounts(price, 0) <= 0:
+                continue
 
-            feed_info_array.append(
-                {
-                    "id": product.id,
-                    "title": product.display_name,
-                    "link": f"{domain}/shop/{slug(tmpl)}",
-                    "description": product.with_context(lang="fr_FR").description_sale
-                    or "",
-                    "image_link": f"{domain}/web/image/product.product/{product.id}/image_1024",
-                    "price": f"{price_unit} {currency_name}",
-                    "product_type": ", ".join(
-                        product.public_categ_ids.mapped("display_name")
-                    ),
-                    "gtin": product.barcode or "",
-                    "condition": "new",
-                    "availability": "in stock",
-                    "brand": product.google_product_brand_id.name or "",
-                    "mpn": product.google_mpn or product.default_code or "",
-                    "adult": "yes" if product.google_adult else "no",
-                }
-            )
+            brand = product.google_product_brand_id.name
+            mpn = product.google_mpn or product.default_code
+            item = {
+                # Kept as the variant id so existing GMC listings stay matched.
+                "id": product.id,
+                "title": product.display_name[:150],
+                "description": (
+                    product.website_meta_description
+                    or product.description_sale
+                    or product.display_name
+                )[:5000],
+                "link": absolute_url(product.website_url),
+                "image_link": (
+                    # Google does not allow placeholder images.
+                    absolute_url(product._get_image_1920_url(), localized=False)
+                    if product.image_128
+                    else ""
+                ),
+                "additional_image_link": [
+                    absolute_url(url, localized=False)
+                    for url in product._get_extra_image_1920_urls()[:10]
+                ],
+                "availability": "out_of_stock" if product._is_sold_out() else "in_stock",
+                "price": f"{price:.{currency.decimal_places}f} {currency.name}",
+                "condition": "new",
+                "brand": brand or "",
+                "gtin": product.barcode or "",
+                "mpn": mpn or "",
+                # "no" only when the product has neither a GTIN nor a brand + MPN pair.
+                "identifier_exists": "yes" if product.barcode or (brand and mpn) else "no",
+                "adult": "yes" if product.google_adult else "no",
+                "product_type": [
+                    category.replace("/", ">")
+                    for category in product.public_categ_ids.sorted("sequence").mapped(
+                        "display_name"
+                    )[:5]
+                ],
+            }
+            # Required for variants in most countries, groups them under one product.
+            if len(product.product_tmpl_id.product_variant_ids) > 1:
+                item["item_group_id"] = product.product_tmpl_id.id
+            feed_items.append(item)
 
-        return feed_info_array
-
+        return feed_items
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
@@ -114,6 +151,14 @@ class ProductTemplate(models.Model):
         inverse="_set_google_adult",
         store=True,
     )
+
+    def _get_related_fields_variant_template(self):
+        return super()._get_related_fields_variant_template() + [
+            "sync_with_mc",
+            "google_product_brand_id",
+            "google_mpn",
+            "google_adult",
+        ]
 
     @api.depends("product_variant_ids.sync_with_mc")
     def _compute_sync_with_mc(self):
