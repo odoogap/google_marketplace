@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import base64
 import datetime
 
 from odoo import http, fields
@@ -8,7 +5,7 @@ from odoo.addons.website.controllers.main import Website
 from odoo.http import request
 
 
-class Website(Website):
+class WebsiteGoogleFeed(Website):
 
     @http.route(
         "/google-feed/<string:currency_code>/<int:wid>",
@@ -28,7 +25,7 @@ class Website(Website):
 
         website = Website.browse(wid).exists()
         if not website:
-            return request.not_found()
+            raise request.not_found()
 
         feed_url = f"/google-feed/{currency_code}/{website.id}.xml"
 
@@ -38,7 +35,7 @@ class Website(Website):
         def create_feed_attachment(url, content):
             return Attachment.create(
                 {
-                    "datas": base64.b64encode(content.encode("utf-8")),
+                    "raw": content.encode("utf-8"),
                     "mimetype": mimetype,
                     "type": "binary",
                     "name": url,
@@ -64,10 +61,8 @@ class Website(Website):
                 hours=expiry_hours
             )
 
-            if not expired and feed.datas:
-                return request.make_response(
-                    base64.b64decode(feed.datas), [("Content-Type", mimetype)]
-                )
+            if not expired and feed.raw:
+                return request.make_response(feed.raw.content, [("Content-Type", mimetype)])
             else:
                 feed.unlink()
 

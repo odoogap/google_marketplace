@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 ERPGAP/PROMPTEQUATION LDA
+# Copyright 2026 ERPGAP/PROMPTEQUATION LDA
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 {
     'name': 'Website Google Feed',
     'category': 'Website',
-    'version': '1.0',
+    'version': '20.0.1.0.0',
     'summary': 'Website Google Feed',
     'author': "ERPGAP",
     'website': "https://www.erpgap.com/",
@@ -15,7 +15,7 @@
         'website_sale',
     ],
     'data': [
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
         'views/product_views.xml',
         'views/website_feed.xml',
         'views/google_merchant_script.xml',
